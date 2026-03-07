@@ -2,7 +2,6 @@ import logging
 import os
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.components.frontend import async_register_panel, async_remove_panel
 from .const import DOMAIN, CONF_SHOW_SIDEBAR
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,8 +16,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Register/Remove the custom panel based on options
     show_sidebar = entry.options.get(CONF_SHOW_SIDEBAR, True)
+    frontend = hass.components.frontend
     if show_sidebar:
-        async_register_panel(
+        frontend.async_register_panel(
             hass,
             "ezbt",
             "ezbt-panel",
@@ -28,7 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             require_admin=True,
         )
     else:
-        async_remove_panel(hass, "ezbt")
+        frontend.async_remove_panel(hass, "ezbt")
 
     entry.async_on_unload(entry.add_update_listener(async_update_options))
 
@@ -53,7 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    async_remove_panel(hass, "ezbt")
+    hass.components.frontend.async_remove_panel(hass, "ezbt")
     return True
 
 async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:

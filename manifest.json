@@ -4,7 +4,8 @@
     "codeowners": [],
     "config_flow": true,
     "dependencies": [
-        "bluetooth"
+        "bluetooth",
+        "frontend"
     ],
     "documentation": "https://github.com/example/ezbt",
     "configuration_url": "/ezbt",
