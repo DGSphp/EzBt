@@ -12,7 +12,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     # Register the static path for the panel files
     static_path = os.path.join(os.path.dirname(__file__), "www")
-    hass.http.register_static_path("/ezbt_static", static_path, cache_headers=False)
+    hass.http.async_register_static_path("/ezbt_static", static_path, cache_headers=False)
 
     # Register/Remove the custom panel based on options
     show_sidebar = entry.options.get(CONF_SHOW_SIDEBAR, True)
