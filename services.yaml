@@ -1,0 +1,9 @@
+scan:
+  description: "Scan for Bluetooth devices."
+pair_device:
+  description: "Connect or pair a discovered Bluetooth device."
+  fields:
+    address:
+      description: "MAC Address of the device to pair."
+      example: "00:11:22:33:44:55"
+      required: true
