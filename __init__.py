@@ -2,6 +2,7 @@ import logging
 import os
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.components.http import StaticPathConfig
 from .const import DOMAIN, CONF_SHOW_SIDEBAR
 
 _LOGGER = logging.getLogger(__name__)
@@ -12,7 +13,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     
     # Register the static path for the panel files
     static_path = os.path.join(os.path.dirname(__file__), "www")
-    hass.http.async_register_static_path("/ezbt_static", static_path, cache_headers=False)
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig("/ezbt_static", static_path, False)]
+    )
 
     # Register/Remove the custom panel based on options
     show_sidebar = entry.options.get(CONF_SHOW_SIDEBAR, True)
