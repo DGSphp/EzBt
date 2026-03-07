@@ -1,7 +1,8 @@
 import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.components.frontend import async_register_built_in_panel
+import os
+from homeassistant.components.frontend import async_register_panel
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -10,14 +11,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up EzBt from a config entry."""
     hass.data.setdefault(DOMAIN, {})
     
+    # Register the static path for the panel files
+    static_path = os.path.join(os.path.dirname(__file__), "www")
+    hass.http.register_static_path("/ezbt_static", static_path, cache_headers=False)
+
     # Register the custom panel
-    async_register_built_in_panel(
+    async_register_panel(
         hass,
-        component_name="custom-panel",
+        "ezbt",
+        "ezbt-panel",
         sidebar_title="EzBt",
         sidebar_icon="mdi:bluetooth",
-        url_path="ezbt",
-        config={"url": "/local/custom_components/ezbt/www/ezbt-panel.js"},
+        module_url="/ezbt_static/ezbt-panel.js",
         require_admin=True,
     )
 
