@@ -1,5 +1,6 @@
 {
     "name": "EzBt",
     "render_readme": true,
-    "category": "integration"
+    "category": "integration",
+    "content_in_root": true
 }
