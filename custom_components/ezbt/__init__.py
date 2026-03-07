@@ -1,9 +1,8 @@
 import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
-import os
-from homeassistant.components.frontend import async_register_panel
-from .const import DOMAIN
+from homeassistant.components.frontend import async_register_panel, async_remove_panel
+from .const import DOMAIN, CONF_SHOW_SIDEBAR
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -15,16 +14,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     static_path = os.path.join(os.path.dirname(__file__), "www")
     hass.http.register_static_path("/ezbt_static", static_path, cache_headers=False)
 
-    # Register the custom panel
-    async_register_panel(
-        hass,
-        "ezbt",
-        "ezbt-panel",
-        sidebar_title="EzBt",
-        sidebar_icon="mdi:bluetooth",
-        module_url="/ezbt_static/ezbt-panel.js",
-        require_admin=True,
-    )
+    # Register/Remove the custom panel based on options
+    show_sidebar = entry.options.get(CONF_SHOW_SIDEBAR, True)
+    if show_sidebar:
+        async_register_panel(
+            hass,
+            "ezbt",
+            "ezbt-panel",
+            sidebar_title="EzBt",
+            sidebar_icon="mdi:bluetooth",
+            module_url="/ezbt_static/ezbt-panel.js",
+            require_admin=True,
+        )
+    else:
+        async_remove_panel(hass, "ezbt")
+
+    entry.async_on_unload(entry.add_update_listener(async_update_options))
 
     from .coordinator import BluetoothCoordinator
     coordinator = BluetoothCoordinator(hass)
@@ -47,4 +52,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
+    async_remove_panel(hass, "ezbt")
     return True
+
+async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Update options."""
+    await hass.config_entries.async_reload(entry.entry_id)

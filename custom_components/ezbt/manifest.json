@@ -7,6 +7,7 @@
         "bluetooth"
     ],
     "documentation": "https://github.com/example/ezbt",
+    "configuration_url": "/ezbt",
     "iot_class": "local_polling",
     "version": "1.0.0"
 }
