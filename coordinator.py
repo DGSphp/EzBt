@@ -30,28 +30,22 @@ class BluetoothCoordinator(DataUpdateCoordinator):
         device = service_info.device
         adv_data = service_info.advertisement
         
-        # Filter for Speaker/HID (Simplified)
-        # In a real scenario, we'd check adv_data.service_uuids or manufacturer_data
-        is_relevant = False
-        name = (device.name or adv_data.local_name or "").lower()
-        relevant_keywords = ["speaker", "hid", "mouse", "keyboard", "headset", "radio", "audio", "headphones", "phone", "input", "computer"]
-        if any(keyword in name for keyword in relevant_keywords):
-            is_relevant = True
-            
-        if is_relevant:
-            self.discovered_devices[device.address] = {
-                "name": device.name or adv_data.local_name or "Unknown",
-                "address": device.address,
-                "rssi": service_info.rssi,
-                "connected": False, # Initial state
-            }
-            self.async_set_updated_data(self.discovered_devices)
+        # Store all discovered devices (removing the filter to ensure we see everything)
+        self.discovered_devices[device.address] = {
+            "name": device.name or adv_data.local_name or "Unknown",
+            "address": device.address,
+            "rssi": service_info.rssi,
+            "connected": False, # Initial state
+        }
+        self.async_set_updated_data(self.discovered_devices)
 
     async def async_scan(self):
         """Perform a scan for Bluetooth devices."""
+        _LOGGER.info("Starting EzBt scan...")
         self.discovered_devices = {}
         # Get discovered info from HA bluetooth component
         for service_info in async_discovered_service_info(self.hass):
             self._async_device_discovered(service_info, "discovered")
         
+        _LOGGER.info("EzBt scan complete. Discovered %d devices.", len(self.discovered_devices))
         return self.discovered_devices

@@ -42,7 +42,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN]["coordinator"] = coordinator
 
     async def handle_scan(call):
+        _LOGGER.info("EzBt scan service called")
         devices = await coordinator.async_scan()
+        _LOGGER.debug("EzBt scan returning %d devices", len(devices))
         return {"devices": list(devices.values())}
 
     async def handle_pair(call):

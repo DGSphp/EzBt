@@ -134,6 +134,7 @@ class EzBtPanel extends LitElement {
     }
 
     async scanDevices() {
+        console.log("EzBt: Starting scan...");
         this.isScanning = true;
         try {
             const result = await this.hass.callWS({
@@ -144,16 +145,22 @@ class EzBtPanel extends LitElement {
                 return_response: true,
             });
             
+            console.log("EzBt: Scan result received:", result);
+            
             // Handle variations in response structure
             if (result && result.response && result.response.devices) {
                 this.devices = result.response.devices;
             } else if (result && result.devices) {
                 this.devices = result.devices;
+            } else if (result && typeof result === 'object' && !Array.isArray(result)) {
+                // If the result is the response itself
+                this.devices = result.devices || [];
             } else {
                 this.devices = [];
             }
+            console.log(`EzBt: Found ${this.devices.length} devices`);
         } catch (e) {
-            console.error("Scan failed", e);
+            console.error("EzBt: Scan failed", e);
         } finally {
             this.isScanning = false;
         }
