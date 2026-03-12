@@ -41,11 +41,30 @@ class BluetoothCoordinator(DataUpdateCoordinator):
 
     async def async_scan(self):
         """Perform a scan for Bluetooth devices."""
-        _LOGGER.info("Starting EzBt scan...")
+        _LOGGER.info("Starting EzBt diagnostic scan...")
+        
+        # Check scanner availability
+        scanner = async_get_scanner(self.hass)
+        if scanner:
+             _LOGGER.info("EzBt: Bluetooth scanner is available: %s", scanner)
+        else:
+             _LOGGER.warning("EzBt: No Bluetooth scanner found! Bluetooth might not be enabled or configured.")
+
         self.discovered_devices = {}
         # Get discovered info from HA bluetooth component
-        for service_info in async_discovered_service_info(self.hass):
+        all_info = list(async_discovered_service_info(self.hass))
+        _LOGGER.info("EzBt: HA Bluetooth cache contains %d devices", len(all_info))
+        
+        for service_info in all_info:
+            device = service_info.device
+            adv_data = service_info.advertisement
+            _LOGGER.debug(
+                "EzBt: Discovered device: %s [%s] RSSI: %d", 
+                device.name or adv_data.local_name or "Unknown", 
+                device.address,
+                service_info.rssi
+            )
             self._async_device_discovered(service_info, "discovered")
         
-        _LOGGER.info("EzBt scan complete. Discovered %d devices.", len(self.discovered_devices))
+        _LOGGER.info("EzBt diagnostic scan complete. Found %d valid devices.", len(self.discovered_devices))
         return self.discovered_devices
