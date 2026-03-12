@@ -7,3 +7,10 @@ pair_device:
       description: "MAC Address of the device to pair."
       example: "00:11:22:33:44:55"
       required: true
+disconnect_device:
+  description: "Disconnect a Bluetooth device."
+  fields:
+    address:
+      description: "MAC Address of the device to disconnect."
+      example: "00:11:22:33:44:55"
+      required: true

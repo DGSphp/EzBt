@@ -14,7 +14,6 @@ class EzBtConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
-        _LOGGER.error("LOG CHECK: EzBt async_step_user called")
         if self._async_current_entries():
             return self.async_abort(reason="single_instance_allowed")
 
@@ -43,5 +42,12 @@ class EzBtOptionsFlowHandler(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema({}),
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        CONF_SHOW_SIDEBAR,
+                        default=self.config_entry.options.get(CONF_SHOW_SIDEBAR, True),
+                    ): bool,
+                }
+            ),
         )
