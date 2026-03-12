@@ -63,7 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         return True
 
     hass.services.async_register(
-        DOMAIN, "scan", handle_scan, supports_response=SupportsResponse.ONLY
+        DOMAIN, "scan", handle_scan, supports_response=SupportsResponse.OPTIONAL
     )
     hass.services.async_register(DOMAIN, "pair_device", handle_pair)
     hass.services.async_register(DOMAIN, "disconnect_device", handle_disconnect)
