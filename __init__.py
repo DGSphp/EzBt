@@ -1,6 +1,6 @@
 import logging
 import os
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.components.http import StaticPathConfig
 from homeassistant.components import panel_custom
@@ -42,15 +42,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN]["coordinator"] = coordinator
 
     async def handle_scan(call):
-        await coordinator.async_scan()
+        devices = await coordinator.async_scan()
+        return {"devices": list(devices.values())}
 
     async def handle_pair(call):
         address = call.data.get("address")
         _LOGGER.info("Pairing with device: %s", address)
+        # In a real implementation, this would call bluetooth pairing logic
+        if address in coordinator.discovered_devices:
+            coordinator.discovered_devices[address]["connected"] = True
+            coordinator.async_set_updated_data(coordinator.discovered_devices)
         return True
 
-    hass.services.async_register(DOMAIN, "scan", handle_scan)
+    async def handle_disconnect(call):
+        address = call.data.get("address")
+        _LOGGER.info("Disconnecting device: %s", address)
+        if address in coordinator.discovered_devices:
+            coordinator.discovered_devices[address]["connected"] = False
+            coordinator.async_set_updated_data(coordinator.discovered_devices)
+        return True
+
+    hass.services.async_register(
+        DOMAIN, "scan", handle_scan, supports_response=SupportsResponse.ONLY
+    )
     hass.services.async_register(DOMAIN, "pair_device", handle_pair)
+    hass.services.async_register(DOMAIN, "disconnect_device", handle_disconnect)
 
     return True
 
