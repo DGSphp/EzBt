@@ -13,6 +13,10 @@ class EzBtPanel extends LitElement {
         this.isScanning = false;
     }
 
+    firstUpdated() {
+        this.scanDevices();
+    }
+
     static styles = css`
     :host {
       display: block;
@@ -132,21 +136,12 @@ class EzBtPanel extends LitElement {
     async scanDevices() {
         this.isScanning = true;
         try {
-            const response = await this.hass.callService("ezbt", "scan");
-            // This is a placeholder since scan service doesn't return data directly usually
-            // We'd probably listen for state changes in a coordinator if we had a sensor
-            // But for this UI scan we might just wait a bit and fetch discovery.
-            setTimeout(() => {
-                this.isScanning = false;
-                // Mocking discovered devices for UI DEMO
-                this.devices = [
-                    { name: "Sony XM4", address: "00:1A:7D:F0:11:22", connected: false },
-                    { name: "Apple Magic Mouse", address: "AA:BB:CC:DD:EE:FF", connected: false }
-                ];
-                this.requestUpdate();
-            }, 2000);
+            // In HA, calling a service with response usually requires passing true as the 5th argument
+            const result = await this.hass.callService("ezbt", "scan", {}, {}, true);
+            this.devices = result.response.devices || [];
         } catch (e) {
             console.error("Scan failed", e);
+        } finally {
             this.isScanning = false;
         }
     }
@@ -154,16 +149,19 @@ class EzBtPanel extends LitElement {
     async pairDevice(device) {
         try {
             await this.hass.callService("ezbt", "pair_device", { address: device.address });
-            device.connected = true;
-            this.requestUpdate();
+            await this.scanDevices();
         } catch (e) {
             console.error("Pairing failed", e);
         }
     }
 
     async disconnectDevice(device) {
-        device.connected = false;
-        this.requestUpdate();
+        try {
+            await this.hass.callService("ezbt", "disconnect_device", { address: device.address });
+            await this.scanDevices();
+        } catch (e) {
+            console.error("Disconnect failed", e);
+        }
     }
 }
 

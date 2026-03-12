@@ -33,7 +33,9 @@ class BluetoothCoordinator(DataUpdateCoordinator):
         # Filter for Speaker/HID (Simplified)
         # In a real scenario, we'd check adv_data.service_uuids or manufacturer_data
         is_relevant = False
-        if "Speaker" in (device.name or "") or adv_data.local_name:
+        name = (device.name or adv_data.local_name or "").lower()
+        relevant_keywords = ["speaker", "hid", "mouse", "keyboard", "headset"]
+        if any(keyword in name for keyword in relevant_keywords):
             is_relevant = True
             
         if is_relevant:
