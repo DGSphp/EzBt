@@ -33,3 +33,13 @@ def test_device_filtering():
     
     coordinator._async_device_discovered(hid_service_info, "discovered")
     assert "AA:BB:CC:DD:EE:FF" in coordinator.discovered_devices
+
+    # Mock service info for the specific Bluetooth Radio device
+    radio_service_info = MagicMock()
+    radio_service_info.device.name = "Bluetooth Radio (0bda:a729)"
+    radio_service_info.device.address = "00:E0:12:34:56:8D"
+    radio_service_info.advertisement.local_name = "Bluetooth Radio"
+    radio_service_info.rssi = -45
+    
+    coordinator._async_device_discovered(radio_service_info, "discovered")
+    assert "00:E0:12:34:56:8D" in coordinator.discovered_devices
