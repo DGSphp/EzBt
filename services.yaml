@@ -1,5 +1,7 @@
 scan:
   description: "Scan for Bluetooth devices."
+  response:
+    description: "A list of discovered Bluetooth devices."
 pair_device:
   description: "Connect or pair a discovered Bluetooth device."
   fields:
