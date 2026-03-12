@@ -136,8 +136,13 @@ class EzBtPanel extends LitElement {
     async scanDevices() {
         this.isScanning = true;
         try {
-            // In HA, calling a service with response usually requires passing true as the 5th argument
-            const result = await this.hass.callService("ezbt", "scan", {}, {}, true);
+            const result = await this.hass.callWS({
+                type: "call_service",
+                domain: "ezbt",
+                service: "scan",
+                service_data: {},
+                return_response: true,
+            });
             this.devices = result.response.devices || [];
         } catch (e) {
             console.error("Scan failed", e);
