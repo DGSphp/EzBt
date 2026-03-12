@@ -43,3 +43,13 @@ def test_device_filtering():
     
     coordinator._async_device_discovered(radio_service_info, "discovered")
     assert "00:E0:12:34:56:8D" in coordinator.discovered_devices
+
+    # Mock service info for an Audio device
+    audio_service_info = MagicMock()
+    audio_service_info.device.name = "My Audio System"
+    audio_service_info.device.address = "11:22:33:44:55:66"
+    audio_service_info.advertisement.local_name = "My Audio System"
+    audio_service_info.rssi = -55
+    
+    coordinator._async_device_discovered(audio_service_info, "discovered")
+    assert "11:22:33:44:55:66" in coordinator.discovered_devices

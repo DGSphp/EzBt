@@ -34,7 +34,7 @@ class BluetoothCoordinator(DataUpdateCoordinator):
         # In a real scenario, we'd check adv_data.service_uuids or manufacturer_data
         is_relevant = False
         name = (device.name or adv_data.local_name or "").lower()
-        relevant_keywords = ["speaker", "hid", "mouse", "keyboard", "headset", "radio"]
+        relevant_keywords = ["speaker", "hid", "mouse", "keyboard", "headset", "radio", "audio", "headphones", "phone", "input", "computer"]
         if any(keyword in name for keyword in relevant_keywords):
             is_relevant = True
             

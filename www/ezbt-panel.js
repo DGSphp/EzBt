@@ -103,7 +103,7 @@ class EzBtPanel extends LitElement {
         <h1>EzBt Bluetooth</h1>
         <button 
             class="scan-button ${this.isScanning ? 'scanning' : ''}" 
-            @click=${this.scanDevices}
+            @click=${() => this.scanDevices()}
             ?disabled=${this.isScanning}
         >
           ${this.isScanning ? "Scanning..." : "Scan for Devices"}
@@ -143,7 +143,15 @@ class EzBtPanel extends LitElement {
                 service_data: {},
                 return_response: true,
             });
-            this.devices = result.response.devices || [];
+            
+            // Handle variations in response structure
+            if (result && result.response && result.response.devices) {
+                this.devices = result.response.devices;
+            } else if (result && result.devices) {
+                this.devices = result.devices;
+            } else {
+                this.devices = [];
+            }
         } catch (e) {
             console.error("Scan failed", e);
         } finally {
